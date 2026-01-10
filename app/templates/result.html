@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dataset Processing Result</title>
+
+  <style>
+    :root{
+      --bg1:#11b5e4;
+      --bg2:#4a65ff;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --head:#f3f6fb;
+      --text:#111827;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      padding:32px 14px;
+    }
+
+    .card{
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.18);
+      padding: 26px 26px 20px 26px;
+    }
+
+    h1{
+      margin:0 0 16px 0;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .pill{
+      display:inline-block;
+      font-size:12px;
+      font-weight:700;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#eef2ff;
+      color:#3b5bdb;
+      margin-left:10px;
+      vertical-align: middle;
+    }
+
+    h2{
+      margin: 22px 0 10px 0;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .overview{
+      display:flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .box{
+      flex:1;
+      min-width: 280px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .box .label{
+      font-size:12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #9aa3b2;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+
+    .box .value{
+      font-size: 22px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px 0;
+      overflow:hidden;
+      border-radius: 10px;
+    }
+
+    thead tr{
+      background: var(--head);
+    }
+
+    th, td{
+      border: 1px solid var(--line);
+      padding: 12px 12px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th{
+      font-weight: 800;
+      color:#111827;
+    }
+
+    .footer{
+      margin-top: 10px;
+      display:flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+
+    .link{
+      text-decoration:none;
+      color:#111827;
+      font-weight:700;
+    }
+    .link:hover{ text-decoration: underline; }
+
+    .muted{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .badgeOk{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#ecfdf3;
+      border:1px solid #bbf7d0;
+      color:#166534;
+      font-size:12px;
+      font-weight:800;
+    }
+    .badgeSkip{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      color:#9a3412;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .emptyNote{
+      border:1px dashed var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--muted);
+      background: #fafafa;
+      font-size: 14px;
+    }
+
+    .actions{
+      margin: 4px 0 14px 0;
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .actionLink{
+      text-decoration:none;
+      font-weight:800;
+      color:#068f1d;
+    }
+    .actionLink:hover{ text-decoration: underline; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>
+      Dataset Processing Result
+    </h1>
+
+    {% if fileName %}
+      <div class="muted"><strong>File:</strong> {{ fileName }}</div>
+    {% endif %}
+    {% if runId %}
+      <div class="muted"><strong>Run ID:</strong> {{ runId }}</div>
+    {% endif %}
+
+    <div class="actions">
+      {% if runId %}
+        <a class="actionLink" href="/download/{{ runId }}/descriptive">⬇ Descriptive Statistics (JSON)</a>
+        <a class="actionLink" href="/download/{{ runId }}/ml">⬇ Machine Learning Results (JSON)</a>
+      {% endif %}
+    </div>
+
+    <h2>Overview</h2>
+    <div class="overview">
+      <div class="box">
+        <div class="label">Number of Rows</div>
+        <div class="value">{{ rows }}</div>
+      </div>
+      <div class="box">
+        <div class="label">Number of Columns</div>
+        <div class="value">{{ cols }}</div>
+      </div>
+    </div>
+
+    <h2>Columns &amp; Data Types</h2>
+    {% if columnTypes and columnTypes|length > 0 %}
+      <table>
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for col in columnTypes %}
+            <tr>
+              <td>{{ col.column }}</td>
+              <td>{{ col.type }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="emptyNote">No columns/types available.</div>
+    {% endif %}
+
+    <h2>Numeric Columns Statistics (min / max / mean)</h2>
+    {% if numericStats and numericStats|length > 0 %}
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Mean</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for stat in numericStats %}
+            <tr>
+              <td>{{ stat.column }}</td>
+              <td>{{ stat.min }}</td>
+              <td>{{ stat.max }}</td>
+              <td>{{ stat.mean }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="emptyNote">No numeric statistics (maybe there are no numeric columns).</div>
+    {% endif %}
+
+    <h2>Distinct Values per Column</h2>
+    {% if distinctInfo and distinctInfo|length > 0 %}
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Distinct Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in distinctInfo %}
+            <tr>
+              <td>{{ d.column }}</td>
+              <td>{{ d.distinctCount }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="emptyNote">No distinct info available.</div>
+    {% endif %}
+
+    <h2>Null / Missing Values per Column</h2>
+    {% if nullInfo and nullInfo|length > 0 %}
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Null Count</th>
+            <th>Missing %</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for n in nullInfo %}
+            <tr>
+              <td>{{ n.column }}</td>
+              <td>{{ n.nullCount }}</td>
+              <td>{{ n.missingPercent }}%</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="emptyNote">No null/missing info available.</div>
+    {% endif %}
+
+    <h2>Machine Learning Jobs</h2>
+    {% if mlResults and mlResults.jobs and mlResults.jobs|length > 0 %}
+      <div class="muted">
+        <strong>Numeric Columns Used:</strong>
+        {% if mlResults.numericColumns and mlResults.numericColumns|length > 0 %}
+          {{ mlResults.numericColumns | join(", ") }}
+        {% else %}
+          None
+        {% endif %}
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Status</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in mlResults.jobs %}
+            <tr>
+              <td>{{ job.jobName }}</td>
+              <td>
+                {% if job.skipped %}
+                  <span class="badgeSkip">Skipped</span>
+                {% else %}
+                  <span class="badgeOk">Done</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if job.skipped %}
+                  {{ job.reason }}
+                {% else %}
+                {% if job.jobName == "regression" %}
+                    label={{ job.labelColumn }} | rmse={{ job.rmse }} | r2={{ job.r2 }}
+                {% elif job.jobName == "classification" %}
+                    label={{ job.labelColumn }} | accuracy={{ job.accuracy }} | classes={{ job.numClasses }}
+                {% elif job.jobName == "clustering" %}
+                    k={{ job.k }} | centers={{ job.clusterCenters }}
+                {% elif job.jobName == "timeSeries" %}
+                    date={{ job.dateColumn }} | value={{ job.valueColumn }} | agg={{ job.aggregation }}
+                {% else %}
+                    Done
+                {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="emptyNote">No ML results available.</div>
+    {% endif %}
+
+    <div class="footer">
+      <a class="link" href="/upload">⬅ Back to Upload Page</a>
+    </div>
+  </div>
+</body>
+</html>

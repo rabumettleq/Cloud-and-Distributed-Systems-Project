@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Dataset</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2933;
+        }
+
+        .card {
+            width: 95%;
+            max-width: 600px;
+            background: #ffffff;
+            padding: 32px 28px;
+            border-radius: 18px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+            border: 1px solid #e2e8f0;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: #0f172a;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #475569;
+            font-size: 0.97rem;
+            line-height: 1.6;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        label {
+            font-size: 0.95rem;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        select {
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.92rem;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            margin-top: 8px;
+            padding: 6px;
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.92rem;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: none;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background: #bae6fd;
+        }
+
+        button[type="submit"] {
+            margin-top: 18px;
+            padding: 10px 24px;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.30);
+            transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+        }
+
+        button[type="submit"]:hover:not([disabled]) {
+            background: #1d4ed8;
+            box-shadow: 0 14px 30px rgba(29, 78, 216, 0.36);
+            transform: translateY(-1px);
+        }
+
+        button[disabled] {
+            opacity: 0.55;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 18px;
+            font-size: 0.9rem;
+            color: #0f172a;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .warning {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #fee2e2;      
+            border: 1px solid #ef4444;
+            color: #7f1d1d;            
+            font-size: 0.9rem;
+            display: none;
+        }
+
+
+        .success {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: #ecfdf5;
+            border: 1px solid #6ee7b7;
+            color: #065f46;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+    <h1>Upload Your Dataset</h1>
+    <p>
+        Please upload your dataset file to be processed as a part of our cloud-based
+        distributed data processing service. The uploaded dataset will be stored
+        and processed in a cloud environment (??????), where Spark jobs will be executed
+        to compute statistics and apply selected ML models in a distributed
+        way.
+    </p>
+
+    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+
+        <label><strong>Select file type:</strong></label><br><br>
+        <select id="fileType" name="file_type">
+            <option value="">-- Choose file type --</option>
+            <option value="csv">CSV</option>
+            <option value="json">JSON</option>
+            <option value="text">Text</option>
+        </select>
+
+        <br><br>
+
+        <label>Select dataset file:</label><br><br>
+        <input id="selectedFile" type="file" name="file" required disabled>
+        <br><br>
+        <button id="uploadBtn" type="submit" disabled>Upload &amp; Process</button>
+    </form>
+
+    <div id="errorMessage" class="warning"></div>
+    <div id="successMessage" class="success"></div>
+
+    <br>
+    <a href="/">⬅ Back to Home</a>
+</div>
+
+<script>
+    const fileType = document.getElementById("fileType");
+    const selectedFile = document.getElementById("selectedFile");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const errorMessage = document.getElementById("errorMessage");
+    const successMessage = document.getElementById("successMessage");
+    const form = document.getElementById("uploadForm");
+
+    function hideFeedbackMessages() {
+        errorMessage.style.display = "none";
+        successMessage.style.display = "none";
+        errorMessage.innerText = "";
+        successMessage.innerText = "";
+    }
+
+    fileType.addEventListener("change", () => {
+        hideFeedbackMessages();
+        if (fileType.value !== "") {
+            selectedFile.disabled = false;
+        } else {
+            selectedFile.disabled = true;
+            uploadBtn.disabled = true;
+            selectedFile.value = "";
+        }
+    });
+
+    selectedFile.addEventListener("change", () => {
+        hideFeedbackMessages();
+        uploadBtn.disabled = !selectedFile.files.length;
+    });
+
+    form.addEventListener("submit", (e) => {
+        hideFeedbackMessages();
+
+        if (fileType.value === "") {
+            e.preventDefault();
+            errorMessage.innerText = "!! Please select a file type/format before uploading !!";
+            errorMessage.style.display = "block";
+            return;
+        }
+
+        if (!selectedFile.files.length) {
+            e.preventDefault();
+            errorMessage.innerText = "!! Please select a dataset file !!";
+            errorMessage.style.display = "block";
+            return;
+        }
+
+        const file = selectedFile.files[0];
+
+        if (file.size === 0) {
+            e.preventDefault();
+            errorMessage.innerText = "!! The selected file is empty. Please upload a valid dataset !!";
+            errorMessage.style.display = "block";
+            return;
+        }
+
+        const allowedFileExtensions = {
+            csv: ".csv",
+            json: ".json",
+            txt: ".txt",
+            pdf: ".pdf"
+        };
+
+        const selectedFileType = fileType.value;
+        const uploadedFileName = file.name.toLowerCase();
+
+        if (!uploadedFileName.endsWith(allowedFileExtensions[selectedFileType])) {
+            e.preventDefault();
+            errorMessage.innerText = "!! File type does not match the selected format. Please upload a file that matches your selection !!";
+            errorMessage.style.display = "block";
+            return;
+        }
+
+        successMessage.innerText = "File validated successfully. Uploading...";
+        successMessage.style.display = "block";
+    });
+</script>
+
+</body>
+</html>

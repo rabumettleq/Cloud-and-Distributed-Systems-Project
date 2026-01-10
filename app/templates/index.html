@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cloud Data Processing</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2933;
+        }
+
+        .hero {
+            width: 95%;
+            max-width: 900px;
+            background: #ffffff;
+            padding: 40px 32px;
+            border-radius: 18px;
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.25);
+            display: grid;
+            grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            gap: 24px;
+            border: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 28px 20px;
+            }
+        }
+
+        .title {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .pill span {
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            font-weight: 600;
+            color: #0f766e;
+        }
+
+        ul.features {
+            margin: 0;
+            margin-top: 10px;
+            padding-left: 18px;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        ul.features li {
+            margin-bottom: 6px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 24px;
+            padding: 12px 28px;
+            background: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.98rem;
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        .btn {
+            display: block;
+            margin: 24px auto 0;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 16px 34px rgba(29, 78, 216, 0.38);
+        }
+
+        .right-card {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 16px 18px;
+            border: 1px solid #dbe4ff;
+        }
+
+        .right-card h3 {
+            margin-top: 0;
+            margin-bottom: 6px;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            background: #e0e7ff;
+            color: #4338ca;
+            margin-bottom: 10px;
+        }
+
+        .team-list {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.9rem;
+            color: #334155;
+        }
+
+        .tagline-ar {
+            font-size: 0.9rem;
+            color: #475569;
+            margin-top: 8px;
+        }
+
+        .mini-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #94a3b8;
+            margin-top: 18px;
+            margin-bottom: 4px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="hero">
+    <div>
+        <div class="pill">
+             <span>☁ Cloud and Distributed Systems Project</span>
+        </div>
+
+        <h1 class="title">Cloud-Based Distributed Data Processing Service</h1>
+
+        <p>
+            Upload your dataset, generate <span class="highlight">descriptive statistics</span> like
+            rows, columns, data types, min/max/mean, and then run
+            <span class="highlight">ML jobs</span> such as regression, classification, clustering,
+            and time-series analysis.
+        </p>
+
+        <ul class="features">
+            <li>Clean web interface built with <span class="highlight">Flask</span>.</li>
+            <li>Data processing and ML powered by <span class="highlight">PySpark</span>.</li>
+            <li>Designed to be deployed on ????.</li>
+        </ul>
+
+        <a class="btn" href="/upload">Get Started</a>
+    </div>
+
+    <div class="right-card" style="direction: rtl; text-align: right;">
+    <div class="badge">فريق العمل</div>
+    <h3 style="margin-bottom: 8px;">أعضاء الفريق</h3>
+
+    <ul class="team-list">
+        <li style="margin-bottom: 10px;">
+            <strong>اسم الطالبة:</strong> ريم سامي أبو مطلق<br>
+            <strong>الرقم جامعي:</strong> 220221848
+        </li>
+
+        <li style="margin-bottom: 10px;">
+            <strong>اسم الطالبة:</strong>  دعاء شعفوط<br>
+            <strong>الرقم جامعي:</strong> 220221111
+        </li>
+    </ul>
+
+    <hr style="margin: 14px 0;">
+
+    <div style="font-size: 0.9rem; line-height: 1.6; direction: ltr; text-align: left;">
+        <strong>A Requirement for the Course:</strong> Cloud and Distributed Systems (SICT 4313)<br>
+        <strong>Instructor:</strong> Dr. Rebhi S. Baraka<br><br>
+        <small>Faculty of Information Technology<br>
+        The Islamic University of Gaza</small>
+    </div>
+</div>
+</div>
+</body>
+</html>
+
