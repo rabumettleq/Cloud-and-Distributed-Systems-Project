@@ -87,6 +87,14 @@
             background: #bae6fd;
         }
 
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.92rem;
+        }
+
         button[type="submit"] {
             margin-top: 18px;
             padding: 10px 24px;
@@ -129,13 +137,12 @@
             margin-top: 12px;
             padding: 10px 12px;
             border-radius: 10px;
-            background: #fee2e2;      
+            background: #fee2e2;
             border: 1px solid #ef4444;
-            color: #7f1d1d;            
+            color: #7f1d1d;
             font-size: 0.9rem;
             display: none;
         }
-
 
         .success {
             margin-top: 12px;
@@ -151,7 +158,7 @@
 </head>
 <body>
 
-    <div class="card">
+<div class="card">
     <h1>Upload Your Dataset</h1>
     <p>
         Please upload your dataset file to be processed as a part of our cloud-based
@@ -175,13 +182,14 @@
 
         <label>Select dataset file:</label><br><br>
         <input id="selectedFile" type="file" name="file" disabled>
+
         <hr><br>
 
         <label>Or use Google Drive path (for large datasets):</label><br><br>
-        <input type="text" name="drive_path" placeholder="/content/drive/MyDrive/Dataset/flights.csv"
-       style="width:100%; padding:8px; border-radius:10px; border:1px solid #cbd5e1;">
+        <input id="drivePath" type="text" name="drive_path" placeholder="/content/drive/MyDrive/datasets/big.csv">
 
         <br><br>
+
         <button id="uploadBtn" type="submit" name="action" value="process" disabled>
             Upload &amp; Process
         </button>
@@ -190,7 +198,6 @@
                 style="margin-left:10px; background:#16a34a;">
             Upload &amp; Run Performance Test
         </button>
-
 
     </form>
 
@@ -218,77 +225,90 @@
         successMessage.innerText = "";
     }
 
+    function updateButtonsState() {
+        const hasType = fileType.value !== "";
+        const hasFile = selectedFile.files.length > 0;
+        const hasDrive = drivePath.value.trim() !== "";
+
+        selectedFile.disabled = !hasType;
+
+        const canSubmit = hasType && (hasFile || hasDrive);
+        uploadBtn.disabled = !canSubmit;
+        performanceBtn.disabled = !canSubmit;
+    }
+
     fileType.addEventListener("change", () => {
         hideFeedbackMessages();
-        if (fileType.value !== "") {
-            selectedFile.disabled = false;
-        } else {
-            selectedFile.disabled = true;
-            uploadBtn.disabled = true;
+        if (fileType.value === "") {
             selectedFile.value = "";
+            drivePath.value = "";
         }
+        updateButtonsState();
     });
 
     selectedFile.addEventListener("change", () => {
         hideFeedbackMessages();
-        uploadBtn.disabled = !selectedFile.files.length;
-        performanceBtn.disabled = !selectedFile.files.length;
+        updateButtonsState();
+    });
 
+    drivePath.addEventListener("input", () => {
+        hideFeedbackMessages();
+        updateButtonsState();
     });
 
     form.addEventListener("submit", (e) => {
-    hideFeedbackMessages();
+        hideFeedbackMessages();
 
-    if (fileType.value === "") {
-        e.preventDefault();
-        errorMessage.innerText = "!! Please select a file type/format before uploading !!";
-        errorMessage.style.display = "block";
-        return;
-    }
-
-    const hasFile = selectedFile.files.length > 0;
-    const hasDrivePath = drivePath.value.trim() !== "";
-
-    if (!hasFile && !hasDrivePath) {
-        e.preventDefault();
-        errorMessage.innerText = "!! Please upload a file or provide a Google Drive path !!";
-        errorMessage.style.display = "block";
-        return;
-    }
-
-    if (hasFile) {
-        const file = selectedFile.files[0];
-
-        if (file.size === 0) {
+        if (fileType.value === "") {
             e.preventDefault();
-            errorMessage.innerText = "!! The selected file is empty. Please upload a valid dataset !!";
+            errorMessage.innerText = "!! Please select a file type/format before uploading !!";
             errorMessage.style.display = "block";
             return;
         }
 
-        const allowedFileExtensions = {
-            csv: ".csv",
-            json: ".json",
-            text: ".txt"
-        };
+        const hasFile = selectedFile.files.length > 0;
+        const hasDrive = drivePath.value.trim() !== "";
 
-        const selectedFileType = fileType.value;
-        const uploadedFileName = file.name.toLowerCase();
-
-        if (!uploadedFileName.endsWith(allowedFileExtensions[selectedFileType])) {
+        if (!hasFile && !hasDrive) {
             e.preventDefault();
-            errorMessage.innerText = "!! File type does not match the selected format !!";
+            errorMessage.innerText = "!! Please upload a file or provide a Google Drive path !!";
             errorMessage.style.display = "block";
             return;
         }
-    }
 
-    successMessage.innerText = "Dataset validated successfully. Processing...";
-    successMessage.style.display = "block";
-});
+        if (hasFile) {
+            const file = selectedFile.files[0];
 
+            if (file.size === 0) {
+                e.preventDefault();
+                errorMessage.innerText = "!! The selected file is empty. Please upload a valid dataset !!";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            const allowedFileExtensions = {
+                csv: ".csv",
+                json: ".json",
+                text: ".txt"
+            };
+
+            const selectedFileType = fileType.value;
+            const uploadedFileName = file.name.toLowerCase();
+
+            if (!uploadedFileName.endsWith(allowedFileExtensions[selectedFileType])) {
+                e.preventDefault();
+                errorMessage.innerText = "!! File type does not match the selected format !!";
+                errorMessage.style.display = "block";
+                return;
+            }
+        }
+
+        successMessage.innerText = "Dataset validated successfully. Processing...";
+        successMessage.style.display = "block";
+    });
+
+    updateButtonsState();
 </script>
-
 
 </body>
 </html>
