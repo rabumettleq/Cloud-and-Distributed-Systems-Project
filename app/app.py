@@ -59,12 +59,20 @@ def uploadFile():
         return render_template("upload.html")
 
     uploadedFile = request.files.get("file")
+    drivePath = (request.form.get("drive_path") or "").strip()
     fileType = (request.form.get("file_type") or "csv").lower().strip()
 
-    if not uploadedFile or uploadedFile.filename.strip() == "":
-        return render_template("upload.html", error="Please choose a file to upload.")
+    if (not uploadedFile or uploadedFile.filename.strip() == "") and drivePath == "":
+        return render_template("upload.html", error="Please upload a file or provide a Google Drive path.")
 
-    fileName = uploadedFile.filename
+    if drivePath != "":
+        savedPath = drivePath
+        fileName = os.path.basename(savedPath)
+    else:
+        fileName = uploadedFile.filename
+        safeName = secure_filename(fileName)
+        savedPath = os.path.join(uploadFolder, safeName)
+        uploadedFile.save(savedPath)
 
     if not isAllowed(fileName, fileType):
         allowedList = ", ".join(sorted(allowedExtensions.get(fileType, [])))
@@ -72,10 +80,6 @@ def uploadFile():
             "upload.html",
             error=f"Invalid file type. For {fileType.upper()} allowed: {allowedList}"
         )
-
-    safeName = secure_filename(fileName)
-    savedPath = os.path.join(uploadFolder, safeName)
-    uploadedFile.save(savedPath)
 
     spark = getSpark()
     df = loadDataset(spark, savedPath, fileType)
@@ -85,7 +89,6 @@ def uploadFile():
 
     runId = makeRunId(fileName)
     runDir = os.path.join(resultsFolder, runId)
-
     ensureDir(runDir)
 
     saveJson(os.path.join(runDir, "descriptive.json"), descriptiveStats)
@@ -105,15 +108,24 @@ def uploadFile():
         mlResults=mlResults,
     )
 
+
 @app.route("/performance-test", methods=["POST"])
 def performanceTest():
     uploadedFile = request.files.get("file")
+    drivePath = (request.form.get("drive_path") or "").strip()
     fileType = (request.form.get("file_type") or "csv").lower().strip()
 
-    if not uploadedFile or uploadedFile.filename.strip() == "":
-        return render_template("upload.html", error="Please choose a file to upload.")
+    if (not uploadedFile or uploadedFile.filename.strip() == "") and drivePath == "":
+        return render_template("upload.html", error="Please upload a file or provide a Google Drive path.")
 
-    fileName = uploadedFile.filename
+    if drivePath != "":
+        savedPath = drivePath
+        fileName = os.path.basename(savedPath)
+    else:
+        fileName = uploadedFile.filename
+        safeName = secure_filename(fileName)
+        savedPath = os.path.join(uploadFolder, safeName)
+        uploadedFile.save(savedPath)
 
     if not isAllowed(fileName, fileType):
         allowedList = ", ".join(sorted(allowedExtensions.get(fileType, [])))
@@ -121,10 +133,6 @@ def performanceTest():
             "upload.html",
             error=f"Invalid file type. For {fileType.upper()} allowed: {allowedList}"
         )
-
-    safeName = secure_filename(fileName)
-    savedPath = os.path.join(uploadFolder, safeName)
-    uploadedFile.save(savedPath)
 
     performanceResults = runPerformanceTestPerJob(savedPath, fileType)
 
@@ -134,7 +142,6 @@ def performanceTest():
         fileType=fileType,
         performanceResults=performanceResults
     )
-
 
 @app.route("/download/<runId>/<which>", methods=["GET"])
 def downloadJson(runId: str, which: str):

@@ -175,6 +175,12 @@
 
         <label>Select dataset file:</label><br><br>
         <input id="selectedFile" type="file" name="file" required disabled>
+        <hr><br>
+
+        <label>Or use Google Drive path (for large datasets):</label><br><br>
+        <input type="text" name="drive_path" placeholder="/content/drive/MyDrive/Dataset/flights.csv"
+       style="width:100%; padding:8px; border-radius:10px; border:1px solid #cbd5e1;">
+
         <br><br>
         <button id="uploadBtn" type="submit" name="action" value="process" disabled>
             Upload &amp; Process
@@ -198,6 +204,7 @@
 <script>
     const fileType = document.getElementById("fileType");
     const selectedFile = document.getElementById("selectedFile");
+    const drivePath = document.getElementById("drivePath");
     const uploadBtn = document.getElementById("uploadBtn");
     const performanceBtn = document.getElementById("performanceBtn");
     const errorMessage = document.getElementById("errorMessage");
@@ -239,47 +246,44 @@
         return;
     }
 
-    if (!selectedFile.files.length) {
+    const hasFile = selectedFile.files.length > 0;
+    const hasDrivePath = drivePath.value.trim() !== "";
+
+    if (!hasFile && !hasDrivePath) {
         e.preventDefault();
-        errorMessage.innerText = "!! Please select a dataset file !!";
+        errorMessage.innerText = "!! Please upload a file or provide a Google Drive path !!";
         errorMessage.style.display = "block";
         return;
     }
 
-    const file = selectedFile.files[0];
+    if (hasFile) {
+        const file = selectedFile.files[0];
 
-    if (file.size === 0) {
-        e.preventDefault();
-        errorMessage.innerText = "!! The selected file is empty. Please upload a valid dataset !!";
-        errorMessage.style.display = "block";
-        return;
+        if (file.size === 0) {
+            e.preventDefault();
+            errorMessage.innerText = "!! The selected file is empty. Please upload a valid dataset !!";
+            errorMessage.style.display = "block";
+            return;
+        }
+
+        const allowedFileExtensions = {
+            csv: ".csv",
+            json: ".json",
+            text: ".txt"
+        };
+
+        const selectedFileType = fileType.value;
+        const uploadedFileName = file.name.toLowerCase();
+
+        if (!uploadedFileName.endsWith(allowedFileExtensions[selectedFileType])) {
+            e.preventDefault();
+            errorMessage.innerText = "!! File type does not match the selected format !!";
+            errorMessage.style.display = "block";
+            return;
+        }
     }
 
-    const allowedFileExtensions = {
-        csv: ".csv",
-        json: ".json",
-        text: ".txt"
-    };
-
-    const selectedFileType = fileType.value;
-    const uploadedFileName = file.name.toLowerCase();
-
-    if (!uploadedFileName.endsWith(allowedFileExtensions[selectedFileType])) {
-        e.preventDefault();
-        errorMessage.innerText = "!! File type does not match the selected format. Please upload a file that matches your selection !!";
-        errorMessage.style.display = "block";
-        return;
-    }
-
-    const clickedBtn = document.activeElement;
-
-    if (clickedBtn && clickedBtn.name === "action" && clickedBtn.value === "performance") {
-        form.action = "/performance-test";
-    } else {
-        form.action = "/upload";
-    }
-
-    successMessage.innerText = "File validated successfully. Uploading...";
+    successMessage.innerText = "Dataset validated successfully. Processing...";
     successMessage.style.display = "block";
 });
 
