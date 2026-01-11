@@ -7,6 +7,7 @@ from app.spark.session import getSpark
 from app.spark.loader import loadDataset
 from app.spark.descriptive import runDescriptiveStats
 from app.spark.ml_jobs import runMlJobs
+from app.spark.performance import runPerformanceTestPerJob
 
 
 from app.utils.export import ensureDir, saveJson, readJson
@@ -102,6 +103,36 @@ def uploadFile():
         distinctInfo=descriptiveStats.get("distinctInfo", []),
         nullInfo=descriptiveStats.get("nullInfo", []),
         mlResults=mlResults,
+    )
+
+@app.route("/performance-test", methods=["POST"])
+def performanceTest():
+    uploadedFile = request.files.get("file")
+    fileType = (request.form.get("file_type") or "csv").lower().strip()
+
+    if not uploadedFile or uploadedFile.filename.strip() == "":
+        return render_template("upload.html", error="Please choose a file to upload.")
+
+    fileName = uploadedFile.filename
+
+    if not isAllowed(fileName, fileType):
+        allowedList = ", ".join(sorted(allowedExtensions.get(fileType, [])))
+        return render_template(
+            "upload.html",
+            error=f"Invalid file type. For {fileType.upper()} allowed: {allowedList}"
+        )
+
+    safeName = secure_filename(fileName)
+    savedPath = os.path.join(uploadFolder, safeName)
+    uploadedFile.save(savedPath)
+
+    performanceResults = runPerformanceTestPerJob(savedPath, fileType)
+
+    return render_template(
+        "performance_result.html",
+        fileName=fileName,
+        fileType=fileType,
+        performanceResults=performanceResults
     )
 
 

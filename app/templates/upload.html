@@ -161,7 +161,7 @@
         way.
     </p>
 
-    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" method="POST" enctype="multipart/form-data">
 
         <label><strong>Select file type:</strong></label><br><br>
         <select id="fileType" name="file_type">
@@ -176,7 +176,16 @@
         <label>Select dataset file:</label><br><br>
         <input id="selectedFile" type="file" name="file" required disabled>
         <br><br>
-        <button id="uploadBtn" type="submit" disabled>Upload &amp; Process</button>
+        <button id="uploadBtn" type="submit" name="action" value="process" disabled>
+            Upload &amp; Process
+        </button>
+
+        <button id="performanceBtn" type="submit" name="action" value="performance" disabled
+                style="margin-left:10px; background:#16a34a;">
+            Upload &amp; Run Performance Test
+        </button>
+
+
     </form>
 
     <div id="errorMessage" class="warning"></div>
@@ -190,6 +199,7 @@
     const fileType = document.getElementById("fileType");
     const selectedFile = document.getElementById("selectedFile");
     const uploadBtn = document.getElementById("uploadBtn");
+    const performanceBtn = document.getElementById("performanceBtn");
     const errorMessage = document.getElementById("errorMessage");
     const successMessage = document.getElementById("successMessage");
     const form = document.getElementById("uploadForm");
@@ -215,55 +225,66 @@
     selectedFile.addEventListener("change", () => {
         hideFeedbackMessages();
         uploadBtn.disabled = !selectedFile.files.length;
+        performanceBtn.disabled = !selectedFile.files.length;
+
     });
 
     form.addEventListener("submit", (e) => {
-        hideFeedbackMessages();
+    hideFeedbackMessages();
 
-        if (fileType.value === "") {
-            e.preventDefault();
-            errorMessage.innerText = "!! Please select a file type/format before uploading !!";
-            errorMessage.style.display = "block";
-            return;
-        }
+    if (fileType.value === "") {
+        e.preventDefault();
+        errorMessage.innerText = "!! Please select a file type/format before uploading !!";
+        errorMessage.style.display = "block";
+        return;
+    }
 
-        if (!selectedFile.files.length) {
-            e.preventDefault();
-            errorMessage.innerText = "!! Please select a dataset file !!";
-            errorMessage.style.display = "block";
-            return;
-        }
+    if (!selectedFile.files.length) {
+        e.preventDefault();
+        errorMessage.innerText = "!! Please select a dataset file !!";
+        errorMessage.style.display = "block";
+        return;
+    }
 
-        const file = selectedFile.files[0];
+    const file = selectedFile.files[0];
 
-        if (file.size === 0) {
-            e.preventDefault();
-            errorMessage.innerText = "!! The selected file is empty. Please upload a valid dataset !!";
-            errorMessage.style.display = "block";
-            return;
-        }
+    if (file.size === 0) {
+        e.preventDefault();
+        errorMessage.innerText = "!! The selected file is empty. Please upload a valid dataset !!";
+        errorMessage.style.display = "block";
+        return;
+    }
 
-        const allowedFileExtensions = {
-            csv: ".csv",
-            json: ".json",
-            txt: ".txt",
-            pdf: ".pdf"
-        };
+    const allowedFileExtensions = {
+        csv: ".csv",
+        json: ".json",
+        text: ".txt"
+    };
 
-        const selectedFileType = fileType.value;
-        const uploadedFileName = file.name.toLowerCase();
+    const selectedFileType = fileType.value;
+    const uploadedFileName = file.name.toLowerCase();
 
-        if (!uploadedFileName.endsWith(allowedFileExtensions[selectedFileType])) {
-            e.preventDefault();
-            errorMessage.innerText = "!! File type does not match the selected format. Please upload a file that matches your selection !!";
-            errorMessage.style.display = "block";
-            return;
-        }
+    if (!uploadedFileName.endsWith(allowedFileExtensions[selectedFileType])) {
+        e.preventDefault();
+        errorMessage.innerText = "!! File type does not match the selected format. Please upload a file that matches your selection !!";
+        errorMessage.style.display = "block";
+        return;
+    }
 
-        successMessage.innerText = "File validated successfully. Uploading...";
-        successMessage.style.display = "block";
-    });
+    const clickedBtn = document.activeElement;
+
+    if (clickedBtn && clickedBtn.name === "action" && clickedBtn.value === "performance") {
+        form.action = "/performance-test";
+    } else {
+        form.action = "/upload";
+    }
+
+    successMessage.innerText = "File validated successfully. Uploading...";
+    successMessage.style.display = "block";
+});
+
 </script>
+
 
 </body>
 </html>

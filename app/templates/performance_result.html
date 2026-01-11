@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Performance Test Results</title>
+  <style>
+    body { font-family: Arial; background:#f1f5f9; padding:40px; }
+    .wrap { max-width: 980px; margin: auto; }
+    .card { background:#fff; padding:18px; border-radius:12px; margin:18px 0; border:1px solid #cbd5e1; }
+    table { border-collapse: collapse; width:100%; background:#fff; }
+    th, td { border:1px solid #cbd5e1; padding:10px; text-align:center; }
+    th { background:#2563eb; color:white; }
+    h2 { text-align:center; margin: 0 0 10px; }
+    h3 { margin: 0 0 12px; color:#0f172a; }
+    .meta { text-align:center; color:#475569; margin-bottom: 20px; }
+    .note { color:#7f1d1d; background:#fee2e2; border:1px solid #ef4444; padding:10px; border-radius:10px; }
+    .skip { color:#7f1d1d; font-size: 0.9rem; margin-top: 8px; }
+    a { display:inline-block; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Performance Test Results (Per ML Job)</h2>
+    <div class="meta">
+      Dataset: <strong>{{ fileName }}</strong> ({{ fileType.upper() }})
+    </div>
+
+    {% if performanceResults.note %}
+      <div class="note">{{ performanceResults.note }}</div>
+    {% endif %}
+
+    {% macro job_table(title, rows) %}
+      <div class="card">
+        <h3>{{ title }}</h3>
+        <table>
+          <tr>
+            <th>Workers</th>
+            <th>Time (sec)</th>
+            <th>Speedup</th>
+            <th>Efficiency (%)</th>
+            <th>Status</th>
+          </tr>
+          {% for r in rows %}
+          <tr>
+            <td>{{ r.workers }}</td>
+            <td>{{ r.time }}</td>
+            <td>{{ r.speedup }}</td>
+            <td>{{ r.efficiency }}</td>
+            <td>
+              {% if r.skipped %}
+                Skipped
+              {% else %}
+                OK
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+
+        {% set anySkipped = rows | selectattr("skipped") | list | length %}
+        {% if anySkipped %}
+          <div class="skip">
+            Some runs were skipped due to dataset limitations (e.g., not enough numeric columns, no date column, etc.).
+          </div>
+        {% endif %}
+      </div>
+    {% endmacro %}
+
+    {{ job_table("1) Regression (Linear Regression)", performanceResults.regression) }}
+    {{ job_table("2) Classification (Logistic Regression)", performanceResults.classification) }}
+    {{ job_table("3) Clustering (KMeans)", performanceResults.clustering) }}
+    {{ job_table("4) Time-Series (Daily Aggregation)", performanceResults.timeSeries) }}
+
+    <a href="/upload">⬅ Back to Upload</a>
+  </div>
+</body>
+</html>
