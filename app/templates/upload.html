@@ -168,7 +168,7 @@
         way.
     </p>
 
-    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data">
 
         <label><strong>Select file type:</strong></label><br><br>
         <select id="fileType" name="file_type">
@@ -194,10 +194,11 @@
             Upload &amp; Process
         </button>
 
-        <button id="performanceBtn" type="submit" name="action" value="performance" disabled
-                style="margin-left:10px; background:#16a34a;">
+        <button id="performanceBtn" type="submit" formaction="/performance-test" disabled
+        style="margin-left:10px; background:#16a34a;">
             Upload &amp; Run Performance Test
         </button>
+
 
     </form>
 
