@@ -77,7 +77,7 @@ drive.mount('/content/drive')
 5. Connect ngrok with auth token:
 
 from pyngrok import ngrok
-ngrok.set_auth_token("386kuXLhn554ElmLslX5BqcfAfL_6BuAW5ffTGg3Y3s43fNa8")
+ngrok.set_auth_token("389Z3kiwrNyKhylidv5L92OykmI_5ZXENLUZwNDNTpcaPvBhC")
 
 6. Run the Flask application:
 
